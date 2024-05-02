@@ -4,15 +4,26 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="//unpkg.com/brain.js"></script>
   <title>Vite App</title>
 </head>
 
 <body>
-  <div id="netPrice" style="display: block; width: max-content;"></div>
-  <div id="netPriceVolume"></div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr;">
 
+    <div style="display: grid; grid-template-rows:0.1fr 1fr;">
+      <h4 style="display: block; margin: auto;">GeussNet</h4>
+      <div id="geussNet" style="width: max-content;display: block; margin: auto;"></div>
+    </div>
+
+    <div style="display: grid; grid-template-rows: 0.1fr 1fr;">
+      <h4 style="display: block; margin: auto;">PriceNet</h4>
+      <div id="priceNet" style="width: max-content;display: block; margin: auto;"></div>
+    </div>
+
+  </div>
 
   <select name="cars" id="cars"> </select>
   <br>
@@ -35,9 +46,11 @@
   <label id="guess"></label>
 
   <br>
-  <input id="actionBtn" type="button">Action</input>
+  <button id="actionBtn" type="button">Action</button>
 
   <script type="module" src="/main.js"></script>
+  <h4 id="alert" hidden>alert</h4>
+  <h4 id="alert2" hidden>alert</h4>
 </body>
 
 </html>

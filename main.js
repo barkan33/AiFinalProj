@@ -26,11 +26,11 @@ function getUniqueManufacturer(data) {
   return result;
 }
 function getUniqueModels(data) {
-  const uniqueModels = new Set(); // Используем Set для хранения уникальных комбинаций
+  const uniqueModels = new Set();
   const result = [];
 
   data.forEach(element => {
-    const key = `${element.Manufacturer}-${element.Model}`; // Создаем уникальный ключ
+    const key = `${element.Manufacturer}-${element.Model}`;
     if (element.Manufacturer == "" || element.Model == "") return;
     if (!uniqueModels.has(key)) {
       uniqueModels.add(key);
@@ -95,7 +95,14 @@ async function main() {
     const guess = document.querySelector('#guess');
     if (selectedManufacturer != "Select Manufacturer" && selectedYear != "Select Year" && selectedCondition >= 0 && selectedCondition <= 100 && selectedOdometer >= 0 && selectedCondition != "" && selectedOdometer != "")
       PriceGenerate(selectedManufacturer, selectedYear, selectedCondition, selectedOdometer)
-
+    else {
+      let alert = document.querySelector('#alert');
+      alert.style.display = "block";
+      alert.innerHTML = "Please fill Manufacturer and Year";
+      setTimeout(() => {
+        alert.style.display = "none";
+      }, 3000);
+    }
 
 
     if (model != "") {
@@ -109,6 +116,13 @@ async function main() {
         guess.innerHTML = res;
 
       }
+    } else {
+      let alert = document.querySelector('#alert2');
+      alert.style.display = "block";
+      alert.innerHTML = "Please fill Model";
+      setTimeout(() => {
+        alert.style.display = "none";
+      }, 3000);
     }
   })
 
@@ -147,13 +161,16 @@ async function PriceGenerate(selectedManufacturer, selectedYear, selectedConditi
 
   priceNet.train(tempTrainData, {
     errorThresh: 0.025,
-    iterations: 5,
+    iterations: 50,
     log: true,
     logPeriod: 1,
 
   });
-
-  // document.querySelector('#netPrice').innerHTML = brain.utilities.toSVG(net);
+  try {
+    document.querySelector('#priceNet').innerHTML = brain.utilities.toSVG(priceNet);
+  } catch (error) {
+    console.log(error);
+  }
 
   // let index = 0;
   // index = Math.floor(Math.random(0, tempTrainData.length - 1));
@@ -194,20 +211,24 @@ async function ManufacturerModelTrain(model) {
   uniqueModels.sort((a, b) => (a.Model > b.Model) ? 1 : -1);
   uniqueModels.sort((a, b) => (a.Manufacturer > b.Manufacturer) ? 1 : -1);
 
-  const { trainData, validationData, testData } = splitData(uniqueModels, 0.4, 0.1);
+  const { trainData, validationData, testData } = splitData(uniqueModels, 0.9, 0.1);
 
   let tempTrainData = trainData.map(element => ({ input: element.Model, output: element.Manufacturer }));
 
   geussNet.train(tempTrainData, {
     errorThresh: 0.005,
-    iterations: 60,
+    iterations: 50,
     log: true,
     logPeriod: 5
   });
 
   isGeussManufacturerTrained = true;
 
-  // document.querySelector('#netPrice').innerHTML = brain.utilities.toSVG(net);
+  try {
+    document.querySelector('#geussNet').innerHTML = brain.utilities.toSVG(geussNet);
+  } catch (error) {
+    console.log(error);
+  }
 
 }
 
@@ -224,13 +245,13 @@ function PricePerformance(net, testData) {
     const error = Math.abs(Math.subtract(+predicted.Price * maxPrice, +actual * maxPrice));
     avg.push(error);
   }
-  const mse = Math.mean(avg);
-  return mse;
+  const mae = Math.mean(avg);
+  return mae;
 }
 
 function titleCase(str) {
   str = str.toLowerCase().split(' ');
-  for (var i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i++) {
     str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
   }
   return str.join(' ');
@@ -276,7 +297,6 @@ function normalizeData(data) {
 
   const minYear = Math.min(data.map(el => +el.Year));
   maxYear = Math.max(data.map(el => +el.Year));
-  //Year: (element.Year - minYear) / (maxYear - minYear) * 10
 
   const meanYear = Math.floor(Math.mean(data.map(el => +el.Year)));
   const stdYear = Math.floor(Math.std(data.map(el => +el.Year)));
@@ -291,13 +311,12 @@ function normalizeData(data) {
       Odometer: +element.Odometer / maxOdometer,
       Price: +element.Price / maxPrice,
       Transmission: element.Transmission,
-      // Trim: element.Trim,
-      // Year: (element.Year - 2000) / 100
-      // Year: (element.Year - minYear) / (maxYear - minYear)
-      Year: element.Year / maxYear
+      // Trim: element.Trim, // רמת גימור לא לשימוש
 
+      /*אופציות לנרמול שנת היצור */
+      // Year: (element.Year - minYear) / (maxYear - minYear)
       // Year: (element.Year - meanYear) / stdYear
-      // Year: element.Year
+      Year: element.Year / maxYear
     };
     return input;
   });
@@ -306,8 +325,8 @@ function normalizeData(data) {
 
 //חילוק מערך לקטגוריות
 function splitData(data, trainRatio = 0.8, validationRatio = 0.1) {
-  // const shuffledData = shuffleArray([...data]);
-  const shuffledData = [...data];
+  const shuffledData = shuffleArray([...data]);
+  // const shuffledData = [...data]; // ביטול ערבוב המערך
   const trainSize = Math.floor(data.length * trainRatio);
   const validationSize = Math.floor(data.length * validationRatio);
   const trainData = shuffledData.slice(0, trainSize);
