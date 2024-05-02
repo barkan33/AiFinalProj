@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="//unpkg.com/brain.js"></script>
+  <title>Vite App</title>
+</head>
+
+<body>
+  <div id="netPrice" style="display: block; width: max-content;"></div>
+  <div id="netPriceVolume"></div>
+
+
+  <select name="cars" id="cars"> </select>
+  <br>
+
+  <select name="years" id="years"> </select>
+  <br>
+
+  <label for="inputCondition">Condition (0-100):</label>
+  <input id="inputCondition" type="number" min="0" max="100" value="0">
+  <br>
+  <label for="inputOdometer">Odometer (Miles):</label>
+  <input id="inputOdometer" type="number" min="0" value="0">
+  <br>
+  <label>Recommended Price (USD):</label>
+  <h3 style="display: inline;" id="recPrice"></h3>
+  <br>
+  <br>
+  <label for="inputModel">Guess Manufacturer by Model:</label>
+  <input id="inputModel" type="text" value="">
+  <label id="guess"></label>
+
+  <br>
+  <input id="actionBtn" type="button">Action</input>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
